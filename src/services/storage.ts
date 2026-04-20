@@ -162,7 +162,13 @@ export class StorageService {
   async updateNote(id: string, updates: Partial<Note>): Promise<Note> {
     const notes = await this.getNotes();
     const index = notes.findIndex(n => n.id === id);
-    if (index === -1) throw new Error('Note not found');
+    if (index === -1) {
+      const now = Date.now();
+      const newNote: Note = { id, title: '', content: '', categoryId: '', tagIds: [], createdAt: now, updatedAt: now, isFavorite: false, isArchived: false, color: '#FFFFFF', ...updates };
+      notes.unshift(newNote);
+      await this.setNotes(notes);
+      return newNote;
+    }
     notes[index] = { ...notes[index], ...updates, updatedAt: Date.now() };
     await this.setNotes(notes);
     return notes[index];

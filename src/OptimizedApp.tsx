@@ -11,7 +11,7 @@ type ViewMode = 'list' | 'editor';
 
 function OptimizedApp() {
   const { theme } = useTheme();
-  const { notes, loading, loadNotes, createNote, updateNote, deleteNote, filteredNotes } = useNotes();
+  const { notes, loading, loadNotes, createNote, updateNote, deleteNote, filteredNotes, removeLocalNote } = useNotes();
 
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [editTitle, setEditTitle] = useState('');
@@ -24,8 +24,8 @@ function OptimizedApp() {
 
   const displayNotes = filteredNotes(searchQuery);
 
-  const handleNewNote = useCallback(async () => {
-    const note = await createNote('', '');
+  const handleNewNote = useCallback(() => {
+    const note = createNote('', '');
     setSelectedNote(note);
     setEditTitle('');
     setEditContent('');
@@ -72,9 +72,12 @@ function OptimizedApp() {
   }, [selectedNote]);
 
   const handleBackToList = useCallback(() => {
+    if (selectedNote && !editTitle.trim() && !editContent.trim()) {
+      removeLocalNote(selectedNote.id);
+    }
     setViewMode('list');
     setSelectedNote(null);
-  }, []);
+  }, [selectedNote, editTitle, editContent, removeLocalNote]);
 
   if (loading) {
     return (

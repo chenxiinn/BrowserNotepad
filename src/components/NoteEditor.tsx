@@ -42,7 +42,9 @@ export function NoteEditor({
         )}
         <div className="editor-actions">
           {isEditing && (
-            <button className={`icon-btn ${showPreview ? 'active' : ''}`} onClick={onTogglePreview} title="预览">👁️</button>
+            <button className={`icon-btn ${showPreview ? 'active' : ''}`} onClick={onTogglePreview} title="预览">
+              <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
           )}
           {isEditing ? (
             <>
@@ -58,12 +60,18 @@ export function NoteEditor({
         {isEditing ? (
           <div className="edit-area">
             <div className="editor-pane">
-              <div className="pane-header">📝 编辑 (Markdown)</div>
-              <textarea value={editContent} onChange={e => onEditContentChange(e.target.value)} placeholder="支持 Markdown 格式: # 标题, **粗体**, *斜体*, `代码`" className="content-textarea" />
+              <div className="pane-header">
+                <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                编辑
+              </div>
+              <textarea value={editContent} onChange={e => onEditContentChange(e.target.value)} placeholder="支持 Markdown: # 标题, **粗体**, *斜体*, `代码`" className="content-textarea" />
             </div>
             {showPreview && (
               <div className="preview-pane">
-                <div className="pane-header">👁️ 预览</div>
+                <div className="pane-header">
+                  <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  预览
+                </div>
                 <div className="preview-content" dangerouslySetInnerHTML={renderMarkdown(editContent)} />
               </div>
             )}
@@ -76,7 +84,7 @@ export function NoteEditor({
               <div className="empty-display">
                 点击"编辑"开始添加内容
                 <div className="markdown-hint">
-                  <p>💡 支持 Markdown 格式：</p>
+                  <p>支持 Markdown 格式</p>
                   <code># 标题</code>
                   <code>**粗体**</code>
                   <code>*斜体*</code>

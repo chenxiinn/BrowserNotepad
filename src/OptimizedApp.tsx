@@ -152,11 +152,16 @@ function OptimizedApp() {
           style={isSidePanel && viewMode === 'split' ? { width: `${listWidthPercent}%` } : undefined}
         >
           <div className="search-bar">
-            <input type="text" placeholder="🔍 搜索笔记标题或内容..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="search-input" />
+            <span className="search-icon">
+              <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </span>
+            <input type="text" placeholder="搜索笔记..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="search-input" />
           </div>
           {displayNotes.length === 0 ? (
             <div className="empty-state">
-              <div className="empty-icon">📭</div>
+              <div className="empty-icon">
+                <svg viewBox="0 0 24 24" width="40" height="40" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+              </div>
               <p>{searchQuery ? '没有找到匹配的笔记' : '还没有笔记'}</p>
               {!searchQuery && <button className="btn-secondary" onClick={handleNewNote}>创建第一条笔记</button>}
             </div>
@@ -165,7 +170,9 @@ function OptimizedApp() {
               <div key={note.id} className={`note-card ${selectedNote?.id === note.id ? 'selected' : ''}`} onClick={() => handleNoteClick(note)}>
                 <div className="note-card-header">
                   <h3 className="note-title">{note.title || <span className="untitled">无标题</span>}</h3>
-                  <button className="btn-delete" onClick={e => { e.stopPropagation(); handleDeleteNote(note.id); }} title="删除">🗑️</button>
+                  <button className="btn-delete" onClick={e => { e.stopPropagation(); handleDeleteNote(note.id); }} title="删除">
+                    <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                  </button>
                 </div>
                 <p className="note-preview">{truncateText(note.content, 80) || <span className="no-content">无内容</span>}</p>
                 <div className="note-meta">

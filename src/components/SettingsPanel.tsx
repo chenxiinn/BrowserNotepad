@@ -66,27 +66,40 @@ export function SettingsPanel({ mode, onModeChange, onClose, onImportComplete }:
 
   return (
     <div className="settings-panel">
-      <h3>⚙️ 设置</h3>
+      <h3>
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        设置
+      </h3>
       <div className="import-export-section">
         <h4>打开模式</h4>
         <p className="setting-description">选择插件的打开方式</p>
         <div className="open-mode-buttons">
-          <button className={`btn-mode ${mode === 'sidePanel' ? 'active' : ''}`} onClick={() => onModeChange('sidePanel')}>📐 侧边栏</button>
-          <button className={`btn-mode ${mode === 'floating' ? 'active' : ''}`} onClick={() => onModeChange('floating')}>🪟 悬浮窗</button>
+          <button className={`btn-mode ${mode === 'sidePanel' ? 'active' : ''}`} onClick={() => onModeChange('sidePanel')}>
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+            侧边栏
+          </button>
+          <button className={`btn-mode ${mode === 'floating' ? 'active' : ''}`} onClick={() => onModeChange('floating')}>
+            <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            悬浮窗
+          </button>
         </div>
         <p className="setting-hint">
           {mode === 'sidePanel'
-            ? '当前：侧边栏模式 (点击浏览器右侧图标打开)'
-            : '当前：悬浮窗模式 (点击图标打开，需手动关闭)'}
+            ? '当前：侧边栏模式'
+            : '当前：悬浮窗模式'}
         </p>
       </div>
       <div className="import-export-section">
         <h4>导出数据</h4>
-        <button className="btn-export" onClick={handleExportJSON} title="导出为 JSON 格式">📥 导出数据</button>
+        <button className="btn-export" onClick={handleExportJSON} title="导出为 JSON">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          导出 JSON
+        </button>
         <h4>导入数据</h4>
         <div className="file-input-wrapper">
           <label className="file-input-label">
-            📁 选择文件
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            选择文件
             <input type="file" accept=".json" ref={fileInputRef} onChange={handleFileSelect} />
           </label>
         </div>
@@ -96,23 +109,26 @@ export function SettingsPanel({ mode, onModeChange, onClose, onImportComplete }:
               <label>导入模式</label>
               <div className="option-item">
                 <input type="radio" id="merge" name="importMode" value="merge" checked={importMode === 'merge'} onChange={() => setImportMode('merge')} />
-                <label htmlFor="merge">合并导入（保留现有数据）</label>
+                <label htmlFor="merge">合并导入</label>
               </div>
               <div className="option-item">
                 <input type="radio" id="replace" name="importMode" value="replace" checked={importMode === 'replace'} onChange={() => setImportMode('replace')} />
-                <label htmlFor="replace">完全替换（覆盖现有数据）</label>
+                <label htmlFor="replace">完全替换</label>
               </div>
             </div>
             {importPreview && (
               <div className="import-preview">
-                <strong>预览数据：</strong>
-                <div>笔记数量: {importPreview.notesCount}</div>
-                <div>分类数量: {importPreview.categoriesCount}</div>
-                <div>标签数量: {importPreview.tagsCount}</div>
-                {importPreview.exportDate && <div>导出日期: {new Date(importPreview.exportDate).toLocaleString()}</div>}
+                <strong>预览：</strong>
+                <div>笔记: {importPreview.notesCount}</div>
+                <div>分类: {importPreview.categoriesCount}</div>
+                <div>标签: {importPreview.tagsCount}</div>
+                {importPreview.exportDate && <div>日期: {new Date(importPreview.exportDate).toLocaleString()}</div>}
               </div>
             )}
-            <button className="btn-import" onClick={handleImport} title="执行导入">📤 开始导入</button>
+            <button className="btn-import" onClick={handleImport} title="执行导入">
+              <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              开始导入
+            </button>
           </>
         )}
         {importStatus.message && <div className={`import-status ${importStatus.type}`}>{importStatus.message}</div>}

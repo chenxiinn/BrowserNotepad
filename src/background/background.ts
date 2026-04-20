@@ -50,8 +50,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       chrome.windows.create({
         url: chrome.runtime.getURL('index.html') + '?mode=floating',
         type: 'popup',
-        width: request.width || 500,
-        height: request.height || 700,
+        width: request.width || 420,
+        height: request.height || 650,
         focused: true,
       }, (win) => {
         sendResponse({ status: 'opened', windowId: win?.id });

@@ -9,33 +9,30 @@ import { exportNotesToMarkdown, exportSingleNoteToMarkdown, exportToFile, format
 import type { Note } from './types';
 import './styles/optimized.css';
 
-type ViewMode = 'list' | 'split' | 'editor';
+type ViewMode = 'list' | 'editor';
 
 function OptimizedApp() {
   const { mode, isFloating, isSidePanel } = useMode();
-  const { theme, toggleTheme } = useTheme();
+  const { theme } = useTheme();
   const { notes, loading, loadNotes, createNote, updateNote, deleteNote, filteredNotes } = useNotes();
 
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState('');
   const [editContent, setEditContent] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [showPreview, setShowPreview] = useState(true);
 
   const { listWidthPercent, onMouseDown: onDividerDown, containerRef: listContainerRef } = useDividerResize(42);
   const { width: floatW, height: floatH, onMouseDown: onCornerDown } = useCornerResize(500, 700);
 
-  const { isSaving, lastSaved } = useAutoSave(isEditing, selectedNote, editTitle, editContent, updateNote);
+  const { isSaving, lastSaved } = useAutoSave(true, selectedNote, editTitle, editContent, updateNote);
 
   const displayNotes = filteredNotes(searchQuery);
 
   const handleNewNote = useCallback(async () => {
     const note = await createNote('', '');
     setSelectedNote(note);
-    setIsEditing(true);
     setEditTitle('');
     setEditContent('');
     setViewMode('editor');
@@ -43,32 +40,22 @@ function OptimizedApp() {
 
   const handleNoteClick = useCallback((note: Note) => {
     setSelectedNote(note);
-    setIsEditing(false);
     setEditTitle(note.title);
     setEditContent(note.content);
-    setViewMode('split');
+    setViewMode('editor');
   }, []);
 
   const handleSave = useCallback(async () => {
     if (!selectedNote) return;
     const updated = await updateNote(selectedNote.id, { title: editTitle, content: editContent });
     setSelectedNote(updated);
-    setIsEditing(false);
   }, [selectedNote, editTitle, editContent, updateNote]);
-
-  const handleCancelEdit = useCallback(() => {
-    if (!selectedNote) return;
-    setIsEditing(false);
-    setEditTitle(selectedNote.title);
-    setEditContent(selectedNote.content);
-  }, [selectedNote]);
 
   const handleDeleteNote = useCallback(async (id: string) => {
     if (confirm('确定要删除这条笔记吗？')) {
       await deleteNote(id);
       if (selectedNote?.id === id) {
         setSelectedNote(null);
-        setIsEditing(false);
         setViewMode('list');
       }
     }
@@ -92,7 +79,7 @@ function OptimizedApp() {
 
   const handleOpenFloating = useCallback(() => {
     if (typeof chrome !== 'undefined' && chrome.runtime) {
-      chrome.runtime.sendMessage({ action: 'openFloatingWindow', width: 500, height: 700 });
+      chrome.runtime.sendMessage({ action: 'openFloatingWindow', width: 420, height: 650 });
     }
   }, []);
 
@@ -119,6 +106,11 @@ function OptimizedApp() {
     }
   }, [handleOpenSidePanel, handleOpenFloating]);
 
+  const handleBackToList = useCallback(() => {
+    setViewMode('list');
+    setSelectedNote(null);
+  }, []);
+
   if (loading) {
     return (
       <div className="app-loading">
@@ -136,7 +128,7 @@ function OptimizedApp() {
     >
       <AppHeader
         viewMode={viewMode} setViewMode={setViewMode}
-        theme={theme} onToggleTheme={toggleTheme}
+        theme={theme}
         onNewNote={handleNewNote}
         onExportAll={handleExportAll} onExportSingle={handleExportSingle}
         onOpenFloating={handleOpenFloating} onOpenSidePanel={handleOpenSidePanel}
@@ -144,12 +136,13 @@ function OptimizedApp() {
         onSettingsToggle={() => setIsSettingsOpen(!isSettingsOpen)}
         hasSelectedNote={!!selectedNote}
         mode={mode} isSaving={isSaving} lastSaved={lastSaved}
+        onBackToList={handleBackToList}
       />
       {isSettingsOpen && <SettingsPanel mode={mode} onModeChange={handleModeChange} onClose={() => setIsSettingsOpen(false)} onImportComplete={loadNotes} />}
       <div className={`app-content ${viewMode}`}>
         <div
           className={`notes-list ${viewMode === 'editor' ? 'hidden' : ''}`}
-          style={isSidePanel && viewMode === 'split' ? { width: `${listWidthPercent}%` } : undefined}
+          style={isSidePanel ? { width: `${listWidthPercent}%` } : undefined}
         >
           <div className="search-bar">
             <span className="search-icon">
@@ -183,22 +176,22 @@ function OptimizedApp() {
             ))
           )}
         </div>
-        {isSidePanel && viewMode === 'split' && <DividerResizeHandle onMouseDown={onDividerDown} />}
+        {isSidePanel && selectedNote && <DividerResizeHandle onMouseDown={onDividerDown} />}
         {selectedNote && (
           <div
             className={`note-editor ${viewMode === 'list' ? 'hidden' : ''}`}
-            style={isSidePanel && viewMode === 'split' ? { width: `${100 - listWidthPercent}%` } : undefined}
+            style={isSidePanel ? { width: `${100 - listWidthPercent}%` } : undefined}
           >
             <NoteEditor
-              note={selectedNote} isEditing={isEditing}
-              onStartEditing={() => setIsEditing(true)}
-              onCancelEditing={handleCancelEdit}
+              note={selectedNote} isEditing={true}
+              onStartEditing={() => {}}
+              onCancelEditing={() => {}}
               onSave={handleSave}
               onEditTitleChange={setEditTitle}
               onEditContentChange={setEditContent}
               editTitle={editTitle} editContent={editContent}
-              showPreview={showPreview}
-              onTogglePreview={() => setShowPreview(!showPreview)}
+              showPreview={true}
+              onTogglePreview={() => {}}
             />
           </div>
         )}

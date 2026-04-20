@@ -1,17 +1,27 @@
 {
   "manifest_version": 3,
-  "name": "Chrome 备忘录",
+  "name": "备忘录",
   "version": "1.0.0",
-  "description": "快速记录和管理笔记的 Chrome 插件，支持浏览器侧边栏模式和悬浮窗模式",
+  "description": "快速记录笔记，支持侧边栏和悬浮窗模式，Markdown 实时渲染",
   "permissions": ["storage", "sidePanel", "windows"],
   "action": {
     "default_popup": "popup.html",
-    "default_title": "打开备忘录"
+    "default_title": "打开备忘录",
+    "default_icon": {
+      "16": "images/icon16.png",
+      "48": "images/icon48.png",
+      "128": "images/icon128.png"
+    }
   },
   "side_panel": {
     "default_path": "index.html"
   },
   "background": {
     "service_worker": "background.js"
+  },
+  "icons": {
+    "16": "images/icon16.png",
+    "48": "images/icon48.png",
+    "128": "images/icon128.png"
   }
 }

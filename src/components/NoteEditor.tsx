@@ -1,4 +1,17 @@
+import { useState, useRef, useEffect, useCallback } from 'react';
 import type { Note } from '../types';
+import { marked } from 'marked';
+
+marked.setOptions({ breaks: true, gfm: true });
+
+function renderMarkdown(text: string) {
+  if (!text) return { __html: '<p style="color:var(--cc-text-muted);font-style:italic">点击开始编辑...</p>' };
+  try {
+    return { __html: marked.parse(text) as string };
+  } catch {
+    return { __html: text };
+  }
+}
 
 interface NoteEditorProps {
   note: Note;
@@ -14,85 +27,127 @@ interface NoteEditorProps {
   onTogglePreview: () => void;
 }
 
-import { marked } from 'marked';
-
-marked.setOptions({ breaks: true, gfm: true });
-
-function renderMarkdown(text: string) {
-  if (!text) return { __html: '' };
-  try {
-    return { __html: marked.parse(text) as string };
-  } catch {
-    return { __html: text };
-  }
-}
-
 export function NoteEditor({
   note, isEditing, onStartEditing, onCancelEditing, onSave,
   onEditTitleChange, onEditContentChange, editTitle, editContent,
-  showPreview, onTogglePreview,
 }: NoteEditorProps) {
+  const [editingField, setEditingField] = useState<'title' | 'content' | null>(null);
+  const contentRef = useRef<HTMLTextAreaElement>(null);
+  const displayRef = useRef<HTMLDivElement>(null);
+  const [isComposing, setIsComposing] = useState(false);
+
+  const handleTitleClick = useCallback(() => {
+    setEditingField('title');
+    onStartEditing();
+  }, [onStartEditing]);
+
+  const handleContentClick = useCallback(() => {
+    setEditingField('content');
+    onStartEditing();
+  }, [onStartEditing]);
+
+  const handleBlur = useCallback(() => {
+    if (editingField === 'title') {
+      setTimeout(() => {
+        const active = document.activeElement;
+        if (active !== contentRef.current) {
+          setEditingField(null);
+          onSave();
+        }
+      }, 100);
+    } else if (editingField === 'content') {
+      setTimeout(() => {
+        const active = document.activeElement;
+        if (active !== contentRef.current) {
+          setEditingField(null);
+          onSave();
+        }
+      }, 100);
+    }
+  }, [editingField, onSave]);
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      setEditingField(null);
+      onCancelEditing();
+    }
+    if (editingField === 'title' && e.key === 'Enter') {
+      e.preventDefault();
+      setEditingField('content');
+    }
+    if (editingField === 'content' && e.key === 's' && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      onSave();
+    }
+  }, [editingField, onCancelEditing, onSave]);
+
+  useEffect(() => {
+    if (editingField === 'title') {
+      // title input gets focus via autoFocus
+    }
+    if (editingField === 'content' && contentRef.current) {
+      contentRef.current.focus();
+      const len = contentRef.current.value.length;
+      contentRef.current.setSelectionRange(len, len);
+    }
+  }, [editingField]);
+
   return (
     <div className="note-editor">
-      <div className="editor-header">
-        {isEditing ? (
-          <input type="text" className="title-input" value={editTitle} onChange={e => onEditTitleChange(e.target.value)} placeholder="输入标题..." autoFocus />
+      {/* Title - always visible, click to edit */}
+      <div className="editor-title-area">
+        {editingField === 'title' ? (
+          <input
+            type="text"
+            className="title-input"
+            value={editTitle}
+            onChange={e => onEditTitleChange(e.target.value)}
+            onBlur={handleBlur}
+            onKeyDown={handleKeyDown}
+            placeholder="输入标题..."
+            autoFocus
+          />
         ) : (
-          <h2>{note.title || '无标题'}</h2>
+          <h2
+            className="editable-title"
+            onClick={handleTitleClick}
+            title="点击编辑标题"
+          >
+            {editTitle || '无标题'}
+          </h2>
         )}
-        <div className="editor-actions">
-          {isEditing && (
-            <button className={`icon-btn ${showPreview ? 'active' : ''}`} onClick={onTogglePreview} title="预览">
-              <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-            </button>
-          )}
-          {isEditing ? (
-            <>
-              <button className="btn-secondary" onClick={onCancelEditing}>取消</button>
-              <button className="btn-primary" onClick={onSave}>保存</button>
-            </>
-          ) : (
-            <button className="btn-primary" onClick={onStartEditing}>编辑</button>
-          )}
-        </div>
       </div>
+
+      {/* Content - Typora-style: click to edit markdown, blur to render */}
       <div className="editor-content">
-        {isEditing ? (
-          <div className="edit-area">
-            <div className="editor-pane">
-              <div className="pane-header">
-                <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                编辑
-              </div>
-              <textarea value={editContent} onChange={e => onEditContentChange(e.target.value)} placeholder="支持 Markdown: # 标题, **粗体**, *斜体*, `代码`" className="content-textarea" />
-            </div>
-            {showPreview && (
-              <div className="preview-pane">
-                <div className="pane-header">
-                  <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                  预览
-                </div>
-                <div className="preview-content" dangerouslySetInnerHTML={renderMarkdown(editContent)} />
-              </div>
-            )}
-          </div>
+        {editingField === 'content' ? (
+          <textarea
+            ref={contentRef}
+            className="content-textarea"
+            value={editContent}
+            onChange={e => {
+              if (!isComposing) {
+                onEditContentChange(e.target.value);
+              }
+            }}
+            onCompositionStart={() => setIsComposing(true)}
+            onCompositionEnd={(e) => {
+              setIsComposing(false);
+              onEditContentChange((e.target as HTMLTextAreaElement).value);
+            }}
+            onBlur={handleBlur}
+            onKeyDown={handleKeyDown}
+            placeholder="支持 Markdown: # 标题, **粗体**, *斜体*, `代码`"
+            autoFocus
+          />
         ) : (
-          <div className="note-display">
-            {note.content ? (
-              <div className="note-content" dangerouslySetInnerHTML={renderMarkdown(note.content)} />
-            ) : (
-              <div className="empty-display">
-                点击"编辑"开始添加内容
-                <div className="markdown-hint">
-                  <p>支持 Markdown 格式</p>
-                  <code># 标题</code>
-                  <code>**粗体**</code>
-                  <code>*斜体*</code>
-                  <code>`代码`</code>
-                </div>
-              </div>
-            )}
-          </div>
+          <div
+            ref={displayRef}
+            className="preview-content editable-preview"
+            onClick={handleContentClick}
+            dangerouslySetInnerHTML={renderMarkdown(editContent)}
+            title="点击编辑内容"
+          />
         )}
       </div>
     </div>

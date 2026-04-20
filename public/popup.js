@@ -1,6 +1,4 @@
-// Popup script - 悬浮窗模式测试
-// 调试版本
-
+// Popup script
 document.getElementById('btnSidebar').addEventListener('click', async () => {
   await chrome.storage.local.set({ openMode: 'sidePanel' });
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -17,16 +15,16 @@ document.getElementById('btnFloating').addEventListener('click', async () => {
     const current = await chrome.windows.getCurrent();
 
     const win = await chrome.windows.create({
-      url: 'index.html',
-      type: 'normal',
+      url: chrome.runtime.getURL('index.html') + '?mode=floating',
+      type: 'popup',
       width: 420,
       height: 650,
-      top: 100,
-      left: current.left + current.width - 440,
+      top: Math.max(50, current.top),
+      left: Math.max(50, current.left + current.width - 460),
       focused: true
     });
 
-    console.log('Window created, type:', win.type);
+    console.log('Floating window created, id:', win?.id);
     setTimeout(() => window.close(), 200);
   } catch (e) {
     console.error('Error:', e);

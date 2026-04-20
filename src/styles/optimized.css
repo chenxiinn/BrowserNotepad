@@ -373,17 +373,12 @@ body {
   width: 100%;
 }
 
-.app-content.split .notes-list {
-  border-right: 1px solid var(--cc-border);
-}
-
-.app-content.split .note-editor {
-  flex: 1;
-  min-width: 0;
-}
-
-.app-content.editor .note-editor {
+.app-content.list .notes-list {
   width: 100%;
+}
+
+.app-content.list .notes-list {
+  border-right: none;
 }
 
 .hidden {
@@ -574,56 +569,45 @@ body {
   overflow: hidden;
 }
 
-.editor-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 6px 12px;
-  border-bottom: 1px solid var(--cc-border);
-  gap: 8px;
-  background: var(--cc-bg);
+.editor-title-area {
   flex-shrink: 0;
-  min-height: 40px;
+  padding: 12px 16px 0;
 }
 
-.editor-header h2 {
-  font-size: 13px;
-  font-weight: 600;
-  margin: 0;
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.editable-title {
+  font-size: 18px;
+  font-weight: 700;
   color: var(--cc-text);
+  margin: 0;
+  padding: 4px 8px;
+  border-radius: var(--cc-radius);
+  cursor: text;
+  transition: background-color var(--cc-transition);
+  line-height: 1.4;
   font-family: var(--cc-font-mono);
+  border: 1px solid transparent;
+}
+
+.editable-title:hover {
+  background-color: var(--cc-bg-hover);
 }
 
 .title-input {
-  flex: 1;
+  width: 100%;
   padding: 4px 8px;
-  border: 1px solid var(--cc-border);
+  border: 1px solid var(--cc-accent);
   border-radius: var(--cc-radius);
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 700;
   background-color: var(--cc-bg);
   color: var(--cc-text);
   outline: none;
-  transition: border-color var(--cc-transition);
   font-family: var(--cc-font-mono);
+  line-height: 1.4;
 }
 
 .title-input::placeholder {
   color: var(--cc-text-muted);
-}
-
-.title-input:focus {
-  border-color: var(--cc-accent);
-}
-
-.editor-actions {
-  display: flex;
-  gap: 4px;
-  align-items: center;
 }
 
 .editor-content {
@@ -634,57 +618,13 @@ body {
   min-height: 0;
 }
 
-.edit-area {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-  border-top: 1px solid var(--cc-border);
-}
-
-.editor-pane, .preview-pane {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  overflow: hidden;
-}
-
-.editor-pane {
-  border-right: 1px solid var(--cc-border);
-}
-
-.pane-header {
-  padding: 4px 10px;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--cc-text-tertiary);
-  background: var(--cc-bg-elevated);
-  border-bottom: 1px solid var(--cc-border);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-family: var(--cc-font-mono);
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.pane-header svg {
-  width: 12px;
-  height: 12px;
-  stroke: currentColor;
-  stroke-width: 2;
-  fill: none;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
 .content-textarea {
   flex: 1;
   width: 100%;
-  padding: 12px;
+  padding: 16px;
   border: none;
-  font-size: 13px;
-  line-height: 1.7;
+  font-size: 14px;
+  line-height: 1.8;
   resize: none;
   background-color: var(--cc-bg);
   color: var(--cc-text);
@@ -696,6 +636,20 @@ body {
 
 .content-textarea::placeholder {
   color: var(--cc-text-muted);
+}
+
+.editable-preview {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  cursor: text;
+  min-height: 100%;
+  transition: background-color var(--cc-transition);
+  border-radius: var(--cc-radius);
+}
+
+.editable-preview:hover {
+  background-color: rgba(217, 119, 6, 0.03);
 }
 
 .preview-content {
@@ -1326,40 +1280,28 @@ body {
 @media (max-width: 500px) {
   .app-header {
     padding: 4px 8px;
-    flex-wrap: wrap;
   }
 
   .header-left h1 {
     font-size: 12px;
   }
 
-  .app-content.split .notes-list {
-    width: 100% !important;
-    border-right: none;
-    border-bottom: 1px solid var(--cc-border);
+  .editable-title {
+    font-size: 16px;
   }
 
-  .app-content.split .note-editor {
-    width: 100% !important;
-  }
-
-  .app-content.split {
-    flex-direction: column;
-  }
-
-  .edit-area {
-    flex-direction: column;
-  }
-
-  .editor-pane, .preview-pane {
-    width: 100%;
-    height: 50%;
+  .title-input {
+    font-size: 16px;
   }
 }
 
 @media (max-height: 500px) {
   .app-header {
     padding: 2px 8px;
+  }
+
+  .editor-title-area {
+    padding: 8px 12px 0;
   }
 }
 

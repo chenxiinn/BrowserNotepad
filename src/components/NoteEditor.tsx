@@ -1,111 +1,67 @@
-import { useState, useRef, useEffect } from 'react';
-import type { Note } from '../types';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { marked } from 'marked';
 
 marked.setOptions({ breaks: true, gfm: true });
 
-function renderMarkdown(text: string) {
-  if (!text) return { __html: '<p class="empty-hint">输入 Markdown 内容开始编辑...</p>' };
-  try {
-    return { __html: marked.parse(text) as string };
-  } catch {
-    return { __html: `<pre>${text}</pre>` };
-  }
-}
-
 interface NoteEditorProps {
-  note: Note;
   onEditTitleChange: (title: string) => void;
   onEditContentChange: (content: string) => void;
   editTitle: string;
   editContent: string;
+  onSave: () => void;
 }
 
 export function NoteEditor({
   onEditTitleChange, onEditContentChange,
-  editTitle, editContent,
+  editTitle, editContent, onSave,
 }: NoteEditorProps) {
-  const [editField, setEditField] = useState<'title' | 'content' | null>(null);
-  const [renderedContent, setRenderedContent] = useState({ __html: '' });
-  const contentRef = useRef<HTMLTextAreaElement>(null);
-  const titleRef = useRef<HTMLInputElement>(null);
+  const [showPreview, setShowPreview] = useState(true);
 
-  useEffect(() => {
-    if (editField === 'title' && titleRef.current) {
-      titleRef.current.focus();
-      titleRef.current.select();
+  const renderedContent = useMemo(() => {
+    if (!editContent) return '';
+    try {
+      return marked.parse(editContent) as string;
+    } catch {
+      return editContent;
     }
-  }, [editField]);
-
-  useEffect(() => {
-    if (editField === 'content' && contentRef.current) {
-      contentRef.current.focus();
-      const len = contentRef.current.value.length;
-      contentRef.current.setSelectionRange(len, len);
-    }
-  }, [editField]);
-
-  useEffect(() => {
-    if (editField !== 'content') {
-      setRenderedContent(renderMarkdown(editContent));
-    }
-  }, [editContent, editField]);
+  }, [editContent]);
 
   return (
     <div className="note-editor">
       <div className="editor-title-area">
-        {editField === 'title' ? (
-          <input
-            ref={titleRef}
-            type="text"
-            className="title-input"
-            value={editTitle}
-            onChange={e => onEditTitleChange(e.target.value)}
-            onBlur={() => setEditField(null)}
-            onKeyDown={e => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                setEditField('content');
-              }
-              if (e.key === 'Escape') {
-                setEditField(null);
-              }
-            }}
-            placeholder="输入标题..."
-          />
-        ) : (
-          <h2
-            className="editable-title"
-            onClick={() => setEditField('title')}
-          >
-            {editTitle || '无标题'}
-          </h2>
-        )}
+        <input
+          type="text"
+          className="title-input"
+          value={editTitle}
+          onChange={e => onEditTitleChange(e.target.value)}
+          placeholder="输入标题..."
+        />
       </div>
-      <div className="editor-content">
-        {editField === 'content' ? (
-          <textarea
-            ref={contentRef}
-            className="content-textarea"
-            value={editContent}
-            onChange={e => onEditContentChange(e.target.value)}
-            onBlur={() => setEditField(null)}
-            onKeyDown={e => {
-              if (e.key === 'Escape') {
-                setEditField(null);
-              }
-              if (e.key === 's' && (e.ctrlKey || e.metaKey)) {
-                e.preventDefault();
-              }
-            }}
-            placeholder="支持 Markdown: # 标题, **粗体**, *斜体*, `代码`"
-          />
-        ) : (
-          <div
-            className="preview-content editable-preview"
-            onClick={() => setEditField('content')}
-            dangerouslySetInnerHTML={editField === null ? renderedContent : renderMarkdown(editContent)}
-          />
+      <div className="editor-toolbar">
+        <button
+          className={`toolbar-btn ${showPreview ? 'active' : ''}`}
+          onClick={() => setShowPreview(!showPreview)}
+          title={showPreview ? '隐藏预览' : '显示预览'}
+        >
+          <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          {showPreview ? '预览开' : '预览关'}
+        </button>
+      </div>
+      <div className={`editor-content ${showPreview ? 'with-preview' : ''}`}>
+        <textarea
+          className="content-textarea"
+          value={editContent}
+          onChange={e => onEditContentChange(e.target.value)}
+          onKeyDown={e => {
+            if (e.key === 's' && (e.ctrlKey || e.metaKey)) {
+              e.preventDefault();
+              onSave();
+            }
+          }}
+          placeholder="支持 Markdown: # 标题, **粗体**, *斜体*, `代码`"
+        />
+        {showPreview && (
+          <div className="preview-pane" dangerouslySetInnerHTML={{ __html: renderedContent }} />
         )}
       </div>
     </div>

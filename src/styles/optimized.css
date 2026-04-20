@@ -369,18 +369,6 @@ body {
   min-height: 0;
 }
 
-.app-content.list .notes-list {
-  width: 100%;
-}
-
-.app-content.list .notes-list {
-  width: 100%;
-}
-
-.app-content.list .notes-list {
-  border-right: none;
-}
-
 .hidden {
   display: none !important;
 }
@@ -572,6 +560,8 @@ body {
   flex-direction: column;
   background-color: var(--cc-bg);
   overflow: hidden;
+  flex: 1;
+  min-height: 0;
 }
 
 .editor-title-area {
@@ -579,32 +569,15 @@ body {
   padding: 12px 16px 0;
 }
 
-.editable-title {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--cc-text);
-  margin: 0;
-  padding: 4px 8px;
-  border-radius: var(--cc-radius);
-  cursor: text;
-  transition: background-color var(--cc-transition);
-  line-height: 1.4;
-  font-family: var(--cc-font-mono);
-  border: 1px solid transparent;
-}
-
-.editable-title:hover {
-  background-color: var(--cc-bg-hover);
-}
-
 .title-input {
   width: 100%;
-  padding: 4px 8px;
-  border: 1px solid var(--cc-accent);
-  border-radius: var(--cc-radius);
-  font-size: 18px;
+  padding: 6px 10px;
+  border: none;
+  border-bottom: 1px solid var(--cc-border);
+  border-radius: 0;
+  font-size: 16px;
   font-weight: 700;
-  background-color: var(--cc-bg);
+  background-color: transparent;
   color: var(--cc-text);
   outline: none;
   font-family: var(--cc-font-mono);
@@ -613,6 +586,47 @@ body {
 
 .title-input::placeholder {
   color: var(--cc-text-muted);
+  font-weight: 400;
+}
+
+.title-input:focus {
+  border-bottom-color: var(--cc-accent);
+}
+
+.editor-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-bottom: 1px solid var(--cc-border);
+  background: var(--cc-bg-elevated);
+  flex-shrink: 0;
+}
+
+.toolbar-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border: 1px solid var(--cc-border);
+  border-radius: var(--cc-radius);
+  background: transparent;
+  color: var(--cc-text-secondary);
+  font-size: 11px;
+  font-family: var(--cc-font-sans);
+  cursor: pointer;
+  transition: all var(--cc-transition);
+}
+
+.toolbar-btn:hover {
+  background-color: var(--cc-bg-hover);
+  color: var(--cc-text);
+}
+
+.toolbar-btn.active {
+  background-color: var(--cc-accent-muted);
+  color: var(--cc-accent);
+  border-color: var(--cc-accent);
 }
 
 .editor-content {
@@ -623,10 +637,14 @@ body {
   min-height: 0;
 }
 
+.editor-content.with-preview {
+  flex-direction: row;
+}
+
 .content-textarea {
   flex: 1;
   width: 100%;
-  padding: 16px;
+  padding: 12px 16px;
   border: none;
   font-size: 14px;
   line-height: 1.8;
@@ -637,31 +655,24 @@ body {
   font-family: var(--cc-font-mono);
   font-weight: 400;
   tab-size: 2;
+  min-height: 0;
+}
+
+.editor-content.with-preview .content-textarea {
+  flex: 1;
+  border-right: 1px solid var(--cc-border);
 }
 
 .content-textarea::placeholder {
   color: var(--cc-text-muted);
 }
 
-.editable-preview {
+.preview-pane {
   flex: 1;
-  padding: 16px;
+  padding: 12px 16px;
   overflow-y: auto;
-  cursor: text;
-  min-height: 100%;
-  transition: background-color var(--cc-transition);
-  border-radius: var(--cc-radius);
+  min-height: 0;
 }
-
-.editable-preview:hover {
-  background-color: rgba(217, 119, 6, 0.03);
-}
-
-.preview-content {
-  flex: 1;
-  padding: 16px;
-  overflow-y: auto;
-  font-size: 14px;
   line-height: 1.7;
   color: var(--cc-text);
 }
@@ -865,43 +876,9 @@ body {
   border: 1px solid var(--cc-border-subtle);
 }
 
-.corner-resize-handle {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 16px;
-  height: 16px;
-  cursor: se-resize;
-  opacity: 0.4;
-  transition: opacity var(--cc-transition);
-}
 
-.corner-resize-handle::before {
-  content: '';
-  position: absolute;
-  bottom: 4px;
-  right: 4px;
-  width: 8px;
-  height: 8px;
-  border-right: 2px solid var(--cc-text-muted);
-  border-bottom: 2px solid var(--cc-text-muted);
-}
 
-.corner-resize-handle:hover {
-  opacity: 1;
-}
 
-.divider-resize-handle {
-  width: 3px;
-  cursor: col-resize;
-  background-color: var(--cc-border);
-  transition: background-color var(--cc-transition);
-  flex-shrink: 0;
-}
-
-.divider-resize-handle:hover {
-  background-color: var(--cc-accent);
-}
 
 .settings-panel {
   position: absolute;
@@ -1291,12 +1268,8 @@ body {
     font-size: 12px;
   }
 
-  .editable-title {
-    font-size: 16px;
-  }
-
   .title-input {
-    font-size: 16px;
+    font-size: 14px;
   }
 }
 
@@ -1307,17 +1280,5 @@ body {
 
   .editor-title-area {
     padding: 8px 12px 0;
-  }
-}
-
-@media (max-width: 300px) {
-  .icon-btn {
-    width: 24px;
-    height: 24px;
-  }
-
-  .icon-btn svg {
-    width: 14px;
-    height: 14px;
   }
 }

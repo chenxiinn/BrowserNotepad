@@ -1,17 +1,14 @@
 import { useState, useRef } from 'react';
 import { storageService } from '../services/storage';
 import { dataExportImportService } from '../services/dataExportImportService';
-import type { AppMode } from '../hooks/useMode';
 import { exportToFile } from '../utils/helpers';
 
 interface SettingsPanelProps {
-  mode: AppMode;
-  onModeChange: (mode: AppMode) => void;
   onClose: () => void;
   onImportComplete: () => void;
 }
 
-export function SettingsPanel({ mode, onModeChange, onClose, onImportComplete }: SettingsPanelProps) {
+export function SettingsPanel({ onClose, onImportComplete }: SettingsPanelProps) {
   const [importMode, setImportMode] = useState<'merge' | 'replace'>('merge');
   const [importPreview, setImportPreview] = useState<{ notesCount: number; categoriesCount: number; tagsCount: number; exportDate?: string } | null>(null);
   const [importFileContent, setImportFileContent] = useState<string | null>(null);
@@ -67,38 +64,19 @@ export function SettingsPanel({ mode, onModeChange, onClose, onImportComplete }:
   return (
     <div className="settings-panel">
       <h3>
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         设置
       </h3>
       <div className="import-export-section">
-        <h4>打开模式</h4>
-        <p className="setting-description">选择插件的打开方式</p>
-        <div className="open-mode-buttons">
-          <button className={`btn-mode ${mode === 'sidePanel' ? 'active' : ''}`} onClick={() => onModeChange('sidePanel')}>
-            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
-            侧边栏
-          </button>
-          <button className={`btn-mode ${mode === 'floating' ? 'active' : ''}`} onClick={() => onModeChange('floating')}>
-            <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-            悬浮窗
-          </button>
-        </div>
-        <p className="setting-hint">
-          {mode === 'sidePanel'
-            ? '当前：侧边栏模式'
-            : '当前：悬浮窗模式'}
-        </p>
-      </div>
-      <div className="import-export-section">
         <h4>导出数据</h4>
         <button className="btn-export" onClick={handleExportJSON} title="导出为 JSON">
-          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           导出 JSON
         </button>
         <h4>导入数据</h4>
         <div className="file-input-wrapper">
           <label className="file-input-label">
-            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             选择文件
             <input type="file" accept=".json" ref={fileInputRef} onChange={handleFileSelect} />
           </label>
@@ -126,7 +104,7 @@ export function SettingsPanel({ mode, onModeChange, onClose, onImportComplete }:
               </div>
             )}
             <button className="btn-import" onClick={handleImport} title="执行导入">
-              <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
               开始导入
             </button>
           </>

@@ -2,10 +2,9 @@
   "manifest_version": 3,
   "name": "备忘录",
   "version": "1.0.0",
-  "description": "快速记录笔记，支持侧边栏和悬浮窗模式，Markdown 实时渲染",
-  "permissions": ["storage", "sidePanel", "windows"],
+  "description": "浏览器侧边栏笔记工具，支持 Markdown 实时预览",
+  "permissions": ["storage", "sidePanel"],
   "action": {
-    "default_popup": "popup.html",
     "default_title": "打开备忘录",
     "default_icon": {
       "16": "images/icon16.png",
@@ -22,6 +21,6 @@
   "icons": {
     "16": "images/icon16.png",
     "48": "images/icon48.png",
-    "128": "images/icon128.png"
+      "128": "images/icon128.png"
   }
 }

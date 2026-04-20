@@ -1,10 +1,8 @@
 import { useState, useCallback } from 'react';
-import { useMode } from './hooks/useMode';
 import { useTheme } from './hooks/useTheme';
 import { useNotes } from './hooks/useNotes';
 import { useAutoSave } from './hooks/useAutoSave';
-import { useDividerResize, useCornerResize } from './hooks/useResize';
-import { AppHeader, NoteEditor, SettingsPanel, DividerResizeHandle, CornerResizeHandle } from './components';
+import { AppHeader, NoteEditor, SettingsPanel } from './components';
 import { exportNotesToMarkdown, exportSingleNoteToMarkdown, exportToFile, formatRelativeTime, truncateText } from './utils';
 import type { Note } from './types';
 import './styles/optimized.css';
@@ -12,7 +10,6 @@ import './styles/optimized.css';
 type ViewMode = 'list' | 'editor';
 
 function OptimizedApp() {
-  const { mode, isFloating, isSidePanel } = useMode();
   const { theme } = useTheme();
   const { notes, loading, loadNotes, createNote, updateNote, deleteNote, filteredNotes } = useNotes();
 
@@ -22,9 +19,6 @@ function OptimizedApp() {
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-
-  const { listWidthPercent, onMouseDown: onDividerDown, containerRef: listContainerRef } = useDividerResize(42);
-  const { width: floatW, height: floatH, onMouseDown: onCornerDown } = useCornerResize(500, 700);
 
   const { isSaving, lastSaved } = useAutoSave(true, selectedNote, editTitle, editContent, updateNote);
 
@@ -77,35 +71,6 @@ function OptimizedApp() {
     await exportToFile(markdown, `${title}-${dateStr}-${timeStr}.md`, 'text/markdown');
   }, [selectedNote]);
 
-  const handleOpenFloating = useCallback(() => {
-    if (typeof chrome !== 'undefined' && chrome.runtime) {
-      chrome.runtime.sendMessage({ action: 'openFloatingWindow', width: 420, height: 650 });
-    }
-  }, []);
-
-  const handleOpenSidePanel = useCallback(async () => {
-    if (typeof chrome !== 'undefined' && chrome.sidePanel) {
-      (chrome.sidePanel.open as (options?: { windowId?: number }) => Promise<void>)().catch(console.error);
-    }
-  }, []);
-
-  const handleCloseWindow = useCallback(() => {
-    if (typeof chrome !== 'undefined' && chrome.runtime) {
-      chrome.runtime.sendMessage({ action: 'closeFloatingWindow' });
-    }
-  }, []);
-
-  const handleModeChange = useCallback((newMode: 'sidePanel' | 'floating') => {
-    if (typeof chrome !== 'undefined' && chrome.storage) {
-      chrome.storage.local.set({ openMode: newMode });
-    }
-    if (newMode === 'sidePanel') {
-      handleOpenSidePanel();
-    } else {
-      handleOpenFloating();
-    }
-  }, [handleOpenSidePanel, handleOpenFloating]);
-
   const handleBackToList = useCallback(() => {
     setViewMode('list');
     setSelectedNote(null);
@@ -121,29 +86,20 @@ function OptimizedApp() {
   }
 
   return (
-    <div
-      ref={isSidePanel ? listContainerRef : undefined}
-      className="optimized-app"
-      style={isFloating ? { width: `${floatW}px`, height: `${floatH}px` } : undefined}
-    >
+    <div className="optimized-app">
       <AppHeader
-        viewMode={viewMode} setViewMode={setViewMode}
+        viewMode={viewMode}
         theme={theme}
         onNewNote={handleNewNote}
         onExportAll={handleExportAll} onExportSingle={handleExportSingle}
-        onOpenFloating={handleOpenFloating} onOpenSidePanel={handleOpenSidePanel}
-        onCloseWindow={handleCloseWindow}
         onSettingsToggle={() => setIsSettingsOpen(!isSettingsOpen)}
         hasSelectedNote={!!selectedNote}
-        mode={mode} isSaving={isSaving} lastSaved={lastSaved}
+        isSaving={isSaving} lastSaved={lastSaved}
         onBackToList={handleBackToList}
       />
-      {isSettingsOpen && <SettingsPanel mode={mode} onModeChange={handleModeChange} onClose={() => setIsSettingsOpen(false)} onImportComplete={loadNotes} />}
+      {isSettingsOpen && <SettingsPanel onClose={() => setIsSettingsOpen(false)} onImportComplete={loadNotes} />}
       <div className={`app-content ${viewMode}`}>
-        <div
-          className={`notes-list ${viewMode === 'editor' ? 'hidden' : ''}`}
-          style={isSidePanel ? { width: `${listWidthPercent}%` } : undefined}
-        >
+        <div className={`notes-list ${viewMode === 'editor' ? 'hidden' : ''}`}>
           <div className="search-bar">
             <span className="search-icon">
               <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -176,22 +132,17 @@ function OptimizedApp() {
             ))
           )}
         </div>
-        {isSidePanel && selectedNote && <DividerResizeHandle onMouseDown={onDividerDown} />}
         {selectedNote && (
-          <div
-            className={`note-editor ${viewMode === 'list' ? 'hidden' : ''}`}
-            style={isSidePanel ? { width: `${100 - listWidthPercent}%` } : undefined}
-          >
+          <div className={`note-editor ${viewMode === 'list' ? 'hidden' : ''}`}>
             <NoteEditor
-              note={selectedNote}
               onEditTitleChange={setEditTitle}
               onEditContentChange={setEditContent}
               editTitle={editTitle} editContent={editContent}
+              onSave={handleSave}
             />
           </div>
         )}
       </div>
-      {isFloating && <CornerResizeHandle onMouseDown={onCornerDown} />}
     </div>
   );
 }

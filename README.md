@@ -1,95 +1,86 @@
-# Chrome 备忘录插件
+# BrowserNotepad — Chrome 侧边栏笔记
 
-一个轻量级的 Chrome 浏览器备忘录插件，支持侧边栏模式，用于快速记录和管理笔记。
+轻量级 Chrome 侧边栏笔记扩展，支持 Markdown 逐行渲染，自动保存，深色/浅色主题。
 
-## 功能特性
+## 功能
 
-- ✅ **Markdown 支持**：完整 Markdown 语法支持，使用 marked 库渲染
-- ✅ **自动保存**：编辑时自动保存（2秒延迟）
-- ✅ **侧边栏模式**：支持在浏览器侧边栏中打开
-- ✅ **可缩放窗口**：支持 S/M/L 预设尺寸和自定义拖动缩放
-- ✅ **多视图模式**：列表视图、分栏视图、编辑器视图
-- ✅ **深色/浅色主题**：主题切换并本地存储
-- ✅ **数据导入导出**：支持 JSON 和 Markdown 格式
-- ✅ **本地存储**：Chrome Storage API 安全保存
+- **逐行 Markdown 渲染** — 按 Enter 提交当前行，即刻渲染为格式化文本；点击任意行回到源码编辑
+- **侧边栏模式** — 仅支持 Chrome Side Panel，浏览网页时随时记录
+- **自动保存** — 编辑后 2 秒自动持久化到 `chrome.storage`；空白笔记不会被保存
+- **系统主题跟随** — 深色/浅色自动适配系统偏好，深色模式使用 Catppuccin Mocha 配色
+- **数据导入/导出** — 支持 Markdown 和 JSON 格式
+- **内联 SVG 图标** — 无外部图标依赖
 
-## 安装
+## 安装与开发
 
 ```bash
 npm install
+npm run dev       # Vite 开发服务器（无 Chrome 扩展上下文，storage 回退到 localStorage）
+npm run build     # tsc && vite build → dist/
 ```
 
-## 开发
+加载到 Chrome：`chrome://extensions/` → 开发者模式 → 加载已解压扩展 → 选择 `dist/`
 
-```bash
-npm run dev
-```
+## 编辑器交互
 
-## 构建
+| 操作 | 行为 |
+|------|------|
+| 点击渲染行 | 进入该行源码编辑 |
+| Enter | 提交当前行并渲染，光标移到下一新行 |
+| Shift+Enter | 在编辑区内换行（同 textarea 默认） |
+| Backspace（行首、空行） | 与上一行合并 |
+| ↑ / ↓（行首/行尾） | 在块之间跳转 |
+| Escape | 退出编辑，回到全览模式 |
+| 点击空白区域 | 末尾追加空行并进入编辑 |
+| Ctrl/Cmd+S | 手动保存 |
 
-```bash
-npm run build
-```
-
-## 安装到 Chrome
-
-1. 运行 `npm run build` 构建项目
-2. 打开 Chrome 浏览器，访问 `chrome://extensions/`
-3. 开启"开发者模式"
-4. 点击"加载已解压的扩展程序"
-5. 选择项目的 `dist` 目录
-
-## 使用方法
-
-### 基础操作
-- 点击"+ 新建"创建新笔记
-- 点击笔记卡片查看和编辑
-- 点击删除按钮删除笔记
-- 使用搜索框搜索笔记
-
-### 侧边栏模式
-- 点击标题栏的 📑 按钮在侧边栏中打开插件
-- 侧边栏模式让您在浏览网页时随时记录
-
-### Markdown 支持
-支持完整的 Markdown 语法：
-- `#` 标题
-- `**粗体**` **粗体**
-- `*斜体*` *斜体*
-- `-` 无序列表
-- `1.` 有序列表
-- `> ` 引用
-- `` `代码` ``
-- ```代码块```
-
-### 自动保存
-编辑笔记时，系统会在 2 秒无操作后自动保存，无需手动点击保存按钮。
+代码块（` ``` `）作为整体渲染区域，点击后进入逐行编辑。
 
 ## 项目结构
 
 ```
-chrome-note-app/
-├── src/
-│   ├── OptimizedApp.tsx      # 主应用组件
-│   ├── optimizedMain.tsx      # 应用入口
-│   ├── simpleStorage.ts       # 简单存储服务
-│   ├── services/             # 存储和数据导出服务
-│   ├── background/           # 后台脚本
-│   ├── styles/               # 样式文件
-│   ├── types/                # TypeScript 类型定义
-│   └── utils/                # 工具函数
-├── public/manifest.json      # 插件配置
-├── dist/                     # 构建输出
-└── package.json
+src/
+  OptimizedApp.tsx           # 主组件（列表 + 编辑器视图切换）
+  optimizedMain.tsx          # 入口
+  components/
+    AppHeader.tsx             # 顶部栏
+    NoteEditor.tsx            # 逐行块编辑器（marked 渲染）
+    NoteListItem.tsx          # 笔记列表项
+    SettingsPanel.tsx         # 设置面板
+    index.ts
+  hooks/
+    useNotes.ts              # 笔记 CRUD（createNote 仅本地，upsert on save）
+    useAutoSave.ts            # 2 秒延迟自动保存
+    useTheme.ts               # 系统主题跟随
+  services/
+    storage.ts                # StorageService（chrome.storage / localStorage 降级）
+    categoryService.ts
+    tagService.ts
+    configService.ts
+    exportService.ts          # Markdown / JSON 导出
+  styles/
+    optimized.css             # Claude Code 风格主题
+  types/
+    index.ts                  # Note 等类型定义
+  utils/
+    index.ts
+  background/
+    background.ts             # Manifest V3 service worker（sidePanel）
+public/
+  manifest.json              # sidePanel + storage 权限
+  images/                    # icon16/48/128.png
 ```
+
+## 关键设计
+
+- **空白笔记不持久化**：`createNote` 仅写入本地状态，首次 auto-save 时 `storageService.updateNote` 以 upsert 模式写入 storage；返回列表时空笔记由 `removeLocalNote` 清除
+- **双存储层**：`simpleStorage`（key `chrome-notes`）供 OptimizedApp CRUD；`StorageService`（keys `chrome-note-app-*`）供分类/标签/配置；两者数据不互通
+- **主题**：`useTheme` 监听 `prefers-color-scheme`，通过 `data-theme` 属性切换 CSS 变量；无手动切换按钮
+- **Markdown 渲染**：使用 `marked` 库逐行渲染，代码块作为整体渲染区域
 
 ## 技术栈
 
-- React 18
-- TypeScript
-- Vite
-- marked (Markdown 渲染)
-- Chrome Extension API
+- React 18 · TypeScript · Vite · marked · Chrome Extension Manifest V3
 
 ## 版本
 

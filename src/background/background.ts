@@ -1,5 +1,5 @@
 // Chrome 备忘录 - 后台脚本
-// 功能：处理侧边栏模式的打开逻辑
+// 功能：处理侧边栏和悬浮窗模式的打开逻辑
 
 console.log('Background script loaded');
 
@@ -45,6 +45,30 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       chrome.storage.local.set({ openMode: request.mode });
       sendResponse({ status: 'saved' });
       break;
+
+    case 'openFloatingWindow':
+      chrome.windows.create({
+        url: chrome.runtime.getURL('index.html') + '?mode=floating',
+        type: 'popup',
+        width: request.width || 500,
+        height: request.height || 700,
+        focused: true,
+      }, (win) => {
+        sendResponse({ status: 'opened', windowId: win?.id });
+      });
+      return true;
+
+    case 'closeFloatingWindow':
+      chrome.windows.getCurrent((win) => {
+        if (win) {
+          chrome.windows.remove(win.id, () => {
+            sendResponse({ status: 'closed' });
+          });
+        } else {
+          sendResponse({ error: 'No current window' });
+        }
+      });
+      return true;
 
     default:
       sendResponse({ error: 'Unknown action' });

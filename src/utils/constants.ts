@@ -72,9 +72,4 @@ export const INITIAL_CATEGORIES = [
   { id: 'personal', name: '个人', color: '#ff9800' },
 ];
 
-// 窗口大小预设
-export const WINDOW_SIZES = {
-  SMALL: { width: 420, height: 560 },
-  MEDIUM: { width: 600, height: 700 },
-  LARGE: { width: 800, height: 800 }
-};
+

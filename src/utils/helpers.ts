@@ -69,3 +69,33 @@ export const exportSingleNoteToMarkdown = (note: any): string => {
   content += `${note.content || ''}`;
   return content;
 };
+
+export type ExportResult = { success: boolean; method: 'picker' | 'download' | 'aborted' };
+
+export async function exportToFile(content: string, filename: string, mimeType: string): Promise<ExportResult> {
+  if ('showSaveFilePicker' in window) {
+    try {
+      const types = mimeType.includes('markdown')
+        ? [{ description: 'Markdown', accept: { [mimeType]: ['.md'] } }]
+        : [{ description: 'JSON', accept: { [mimeType]: ['.json'] } }];
+      const handle = await (window as any).showSaveFilePicker({
+        suggestedName: filename,
+        types,
+      });
+      const writable = await handle.createWritable();
+      await writable.write(content);
+      await writable.close();
+      return { success: true, method: 'picker' };
+    } catch (e: any) {
+      if (e.name === 'AbortError') return { success: false, method: 'aborted' };
+    }
+  }
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+  return { success: true, method: 'download' };
+}

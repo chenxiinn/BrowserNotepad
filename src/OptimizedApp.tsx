@@ -183,15 +183,10 @@ function OptimizedApp() {
             style={isSidePanel ? { width: `${100 - listWidthPercent}%` } : undefined}
           >
             <NoteEditor
-              note={selectedNote} isEditing={true}
-              onStartEditing={() => {}}
-              onCancelEditing={() => {}}
-              onSave={handleSave}
+              note={selectedNote}
               onEditTitleChange={setEditTitle}
               onEditContentChange={setEditContent}
               editTitle={editTitle} editContent={editContent}
-              showPreview={true}
-              onTogglePreview={() => {}}
             />
           </div>
         )}

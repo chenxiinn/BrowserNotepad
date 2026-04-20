@@ -5,30 +5,30 @@
 }
 
 :root {
-  --cc-bg: #1a1a2e;
-  --cc-bg-elevated: #16213e;
-  --cc-bg-surface: #0f3460;
-  --cc-bg-hover: #1e2d4a;
-  --cc-bg-active: #233554;
-  --cc-border: #2a3a5c;
-  --cc-border-subtle: #1e2d4a;
+  --cc-bg: #1e1e2e;
+  --cc-bg-elevated: #181825;
+  --cc-bg-surface: #313244;
+  --cc-bg-hover: #2a2a3c;
+  --cc-bg-active: #45475a;
+  --cc-border: #45475a;
+  --cc-border-subtle: #313244;
   --cc-border-focus: #d97706;
-  --cc-text: #e2e8f0;
-  --cc-text-secondary: #94a3b8;
-  --cc-text-tertiary: #64748b;
-  --cc-text-muted: #475569;
+  --cc-text: #cdd6f4;
+  --cc-text-secondary: #a6adc8;
+  --cc-text-tertiary: #6c7086;
+  --cc-text-muted: #585b70;
   --cc-accent: #d97706;
   --cc-accent-hover: #f59e0b;
   --cc-accent-muted: rgba(217, 119, 6, 0.15);
   --cc-accent-strong: rgba(217, 119, 6, 0.25);
-  --cc-danger: #ef4444;
-  --cc-danger-muted: rgba(239, 68, 68, 0.15);
-  --cc-success: #22c55e;
-  --cc-success-muted: rgba(34, 197, 94, 0.15);
-  --cc-info: #3b82f6;
-  --cc-info-muted: rgba(59, 130, 246, 0.15);
-  --cc-scrollbar: #2a3a5c;
-  --cc-scrollbar-hover: #3b5080;
+  --cc-danger: #f38ba8;
+  --cc-danger-muted: rgba(243, 139, 168, 0.15);
+  --cc-success: #a6e3a1;
+  --cc-success-muted: rgba(166, 227, 161, 0.15);
+  --cc-info: #89b4fa;
+  --cc-info-muted: rgba(137, 180, 250, 0.15);
+  --cc-scrollbar: #45475a;
+  --cc-scrollbar-hover: #585b70;
   --cc-radius: 6px;
   --cc-radius-lg: 10px;
   --cc-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -47,7 +47,7 @@
   --cc-border: #cbd5e1;
   --cc-border-subtle: #e2e8f0;
   --cc-border-focus: #d97706;
-  --cc-text: #0f172a;
+  --cc-text: #1e293b;
   --cc-text-secondary: #475569;
   --cc-text-tertiary: #94a3b8;
   --cc-text-muted: #cbd5e1;
@@ -560,6 +560,11 @@ body {
 .empty-state .btn-secondary:hover {
   background-color: var(--cc-accent-muted);
   color: var(--cc-accent-hover);
+}
+
+.empty-hint {
+  color: var(--cc-text-muted) !important;
+  font-style: italic;
 }
 
 .note-editor {

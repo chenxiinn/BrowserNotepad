@@ -125,25 +125,31 @@ export class StorageService {
     cacheTimestamps['notes'] = Date.now();
   }
 
-  async createNote(note: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>): Promise<Note> {
+  async createNote(title: string, content: string): Promise<Note> {
     const notes = await this.getNotes();
-    const newNote: Note = {
-      ...note,
-      id: Date.now().toString(),
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
+    const now = Date.now();
+    const note: Note = {
+      id: now.toString(36) + Math.random().toString(36).substr(2),
+      title,
+      content,
+      categoryId: '',
+      tagIds: [],
+      createdAt: now,
+      updatedAt: now,
+      isFavorite: false,
+      isArchived: false,
+      color: '#FFFFFF',
     };
-    notes.push(newNote);
+    notes.unshift(note);
     await this.setNotes(notes);
-    return newNote;
+    return note;
   }
 
-  // 批量创建笔记
   async createNotes(notesData: Array<Omit<Note, 'id' | 'createdAt' | 'updatedAt'>>): Promise<Note[]> {
     const notes = await this.getNotes();
     const now = Date.now();
-    const newNotes: Note[] = notesData.map((note, index) => ({
-      ...note,
+    const newNotes: Note[] = notesData.map((noteData, index) => ({
+      ...noteData,
       id: (now + index).toString(),
       createdAt: now,
       updatedAt: now,
@@ -153,56 +159,41 @@ export class StorageService {
     return newNotes;
   }
 
-  async updateNote(id: string, updates: Partial<Note>): Promise<Note | null> {
+  async updateNote(id: string, updates: Partial<Note>): Promise<Note> {
     const notes = await this.getNotes();
-    const index = notes.findIndex(note => note.id === id);
-
-    if (index === -1) return null;
-
-    const updatedNote: Note = {
-      ...notes[index],
-      ...updates,
-      updatedAt: Date.now(),
-    };
-    notes[index] = updatedNote;
+    const index = notes.findIndex(n => n.id === id);
+    if (index === -1) throw new Error('Note not found');
+    notes[index] = { ...notes[index], ...updates, updatedAt: Date.now() };
     await this.setNotes(notes);
-    return updatedNote;
+    return notes[index];
   }
 
-  // 批量更新笔记
   async updateNotes(updates: Array<{ id: string; updates: Partial<Note> }>): Promise<Note[]> {
     const notes = await this.getNotes();
     const now = Date.now();
     const updatedNotes: Note[] = [];
-
     for (const { id, updates: noteUpdates } of updates) {
       const index = notes.findIndex(note => note.id === id);
       if (index !== -1) {
-        const updatedNote: Note = {
-          ...notes[index],
-          ...noteUpdates,
-          updatedAt: now,
-        };
+        const updatedNote: Note = { ...notes[index], ...noteUpdates, updatedAt: now };
         notes[index] = updatedNote;
         updatedNotes.push(updatedNote);
       }
     }
-
     await this.setNotes(notes);
     return updatedNotes;
   }
 
   async deleteNote(id: string): Promise<void> {
     const notes = await this.getNotes();
-    const filteredNotes = notes.filter(note => note.id !== id);
-    await this.setNotes(filteredNotes);
+    const filtered = notes.filter(n => n.id !== id);
+    await this.setNotes(filtered);
   }
 
-  // 批量删除笔记
   async deleteNotes(ids: string[]): Promise<void> {
     const notes = await this.getNotes();
-    const filteredNotes = notes.filter(note => !ids.includes(note.id));
-    await this.setNotes(filteredNotes);
+    const filtered = notes.filter(note => !ids.includes(note.id));
+    await this.setNotes(filtered);
   }
 
   async searchNotes(query: string): Promise<Note[]> {

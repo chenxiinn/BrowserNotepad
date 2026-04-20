@@ -91,7 +91,9 @@ function OptimizedApp() {
   }, [selectedNote]);
 
   const handleOpenFloating = useCallback(() => {
-    chrome.runtime.sendMessage({ action: 'openFloatingWindow', width: 500, height: 700 });
+    if (typeof chrome !== 'undefined' && chrome.runtime) {
+      chrome.runtime.sendMessage({ action: 'openFloatingWindow', width: 500, height: 700 });
+    }
   }, []);
 
   const handleOpenSidePanel = useCallback(async () => {
@@ -101,11 +103,15 @@ function OptimizedApp() {
   }, []);
 
   const handleCloseWindow = useCallback(() => {
-    chrome.runtime.sendMessage({ action: 'closeFloatingWindow' });
+    if (typeof chrome !== 'undefined' && chrome.runtime) {
+      chrome.runtime.sendMessage({ action: 'closeFloatingWindow' });
+    }
   }, []);
 
   const handleModeChange = useCallback((newMode: 'sidePanel' | 'floating') => {
-    chrome.storage.local.set({ openMode: newMode });
+    if (typeof chrome !== 'undefined' && chrome.storage) {
+      chrome.storage.local.set({ openMode: newMode });
+    }
     if (newMode === 'sidePanel') {
       handleOpenSidePanel();
     } else {

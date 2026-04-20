@@ -4,6 +4,8 @@ const OLD_KEY = 'chrome-notes';
 const MIGRATION_FLAG = 'chrome-notes-migrated';
 
 export async function migrateOldData(): Promise<void> {
+  if (typeof chrome === 'undefined' || !chrome.storage) return;
+
   const flag = await chrome.storage.local.get(MIGRATION_FLAG);
   if (flag[MIGRATION_FLAG]) return;
 

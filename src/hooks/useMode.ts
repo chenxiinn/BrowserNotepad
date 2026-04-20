@@ -2,6 +2,10 @@ import { useState, useEffect } from 'react';
 
 export type AppMode = 'sidePanel' | 'floating';
 
+function isChromeExtension(): boolean {
+  return typeof chrome !== 'undefined' && !!chrome.runtime && !!chrome.runtime.id;
+}
+
 export function useMode(): { mode: AppMode; isFloating: boolean; isSidePanel: boolean } {
   const [mode, setMode] = useState<AppMode>('sidePanel');
 
@@ -11,7 +15,7 @@ export function useMode(): { mode: AppMode; isFloating: boolean; isSidePanel: bo
       setMode('floating');
       return;
     }
-    if (typeof chrome !== 'undefined' && chrome.windows) {
+    if (isChromeExtension() && chrome.windows) {
       chrome.windows.getCurrent((win) => {
         if (win && win.type === 'popup') {
           setMode('floating');
